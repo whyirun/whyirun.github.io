@@ -36,6 +36,7 @@ function hasRemote() {
 
 // ========== API ==========
 app.get('/', (req, res) => res.sendFile(EDITOR_FILE));
+app.get('/viz', (req, res) => res.sendFile(path.join(__dirname, 'why_I_run_viz.html')));
 
 app.get('/api/data', (req, res) => {
   try {
@@ -74,6 +75,26 @@ app.post('/api/version', (req, res) => {
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.get('/api/pace', (req, res) => {
+  const FIT_FILE = path.join(__dirname, 'run.fit');
+  if (!fs.existsSync(FIT_FILE)) return res.json({ ok: false, error: 'No run.fit' });
+  try {
+    const FitParser = require('fit-file-parser').default || require('fit-file-parser');
+    const fitParser = new FitParser({ speedUnit: 'km/h' });
+    const buffer = fs.readFileSync(FIT_FILE);
+    fitParser.parse(buffer, (err, data) => {
+      if (err) return res.json({ ok: false, error: err.message });
+      const records = data.records || [];
+      const speeds = records
+        .filter(r => r.enhanced_speed != null)
+        .map(r => r.enhanced_speed);
+      res.json({ ok: true, speeds: speeds, count: speeds.length });
+    });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
   }
 });
 

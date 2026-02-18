@@ -1,5 +1,19 @@
 [
   {
+    "id": 0,
+    "category": "intro",
+    "title": "A Superposition of Reasons",
+    "bullets": [
+      "Multiple explanations coexist simultaneously, like a quantum superposition",
+      "Which reason surfaces depends on context: running, racing, finishing, talking to friends, talking to strangers",
+      "Some answers are more frequent, some fluctuate over time, some converge",
+      "Reasons can appear in pure form or as combinations of each other",
+      "The activity itself modulates which version becomes apparent"
+    ],
+    "rawText": "Well, if you ask me why I do ultra-endurance sports—ultra—I, um, have thought about that a lot, and heard other people's responses to this question. And for me, I think the best answer is that there is basically a superposition of reasons, and by that I mean that there are several different explanations, and they are superposed in my brain, like how I represent those things. And they oscillate sometimes—it's explanation one, sometimes explanation two, and so on and so forth. And, um, the interesting thing is that the activity itself modulates what is enhanced, which version of it becomes more on the surface and apparent.\n\nSo, for example, I might have a different response while I'm running, while I'm racing, while when I finish a run, when I talk to people that are endurance friends, when I talk to people that have no idea that those things are even possible—people that don't even represent the concept that you eat while you're running—to my family, to kids, to people that I want to impress, and so on. So, um, but sometimes there are like—there are some answers that are more frequent than others that pop in my brain, and they also fluctuate over time, and they converge over time. But it is—there are like some iconic, some key versions, and then sometimes they mix, uh, as well. So it's like sometimes like pure version one, sometimes like pure version two, but sometimes like a combination of versions.",
+    "essayText": ""
+  },
+  {
     "id": 1,
     "category": "core",
     "title": "Curiosity About Physical and Mental Limits",

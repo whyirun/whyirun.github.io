@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why I Run</title>
+<style>
+* { margin: 0; padding: 0; }
+body { background: #000; overflow: hidden; cursor: none; }
+canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// ========== SIMPLEX NOISE ==========
+var SimplexNoise = (function() {
+  var F2 = 0.5 * (Math.sqrt(3) - 1), G2 = (3 - Math.sqrt(3)) / 6;
+  var grad3 = [[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+  function SN(seed) {
+    this.p = new Uint8Array(256);
+    this.perm = new Uint8Array(512);
+    seed = seed || Math.random() * 65536;
+    for (var i = 0; i < 256; i++) this.p[i] = i;
+    for (var i = 255; i > 0; i--) {
+      seed = (seed * 16807 + 0) % 2147483647;
+      var j = seed % (i + 1);
+      var t = this.p[i]; this.p[i] = this.p[j]; this.p[j] = t;
+    }
+    for (var i = 0; i < 512; i++) this.perm[i] = this.p[i & 255];
+  }
+  SN.prototype.noise2D = function(x, y) {
+    var s = (x + y) * F2, i = Math.floor(x + s), j = Math.floor(y + s);
+    var t = (i + j) * G2, x0 = x - (i - t), y0 = y - (j - t);
+    var i1 = x0 > y0 ? 1 : 0, j1 = x0 > y0 ? 0 : 1;
+    var x1 = x0 - i1 + G2, y1 = y0 - j1 + G2, x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
+    i &= 255; j &= 255;
+    var gi0 = this.perm[i + this.perm[j]] % 8;
+    var gi1 = this.perm[i + i1 + this.perm[j + j1]] % 8;
+    var gi2 = this.perm[i + 1 + this.perm[j + 1]] % 8;
+    var n0 = 0, n1 = 0, n2 = 0;
+    var t0 = 0.5 - x0 * x0 - y0 * y0;
+    if (t0 >= 0) { t0 *= t0; n0 = t0 * t0 * (grad3[gi0][0] * x0 + grad3[gi0][1] * y0); }
+    var t1 = 0.5 - x1 * x1 - y1 * y1;
+    if (t1 >= 0) { t1 *= t1; n1 = t1 * t1 * (grad3[gi1][0] * x1 + grad3[gi1][1] * y1); }
+    var t2 = 0.5 - x2 * x2 - y2 * y2;
+    if (t2 >= 0) { t2 *= t2; n2 = t2 * t2 * (grad3[gi2][0] * x2 + grad3[gi2][1] * y2); }
+    return 70 * (n0 + n1 + n2);
+  };
+  return SN;
+})();
+
+var noise = new SimplexNoise(42);
+var noise2 = new SimplexNoise(137);
+
+// ========== CANVAS ==========
+var canvas = document.getElementById('c');
+var ctx = canvas.getContext('2d');
+var W, H, cx, cy, eRx, eRy;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2;
+  cy = H / 2;
+  eRx = Math.min(W, H) * 0.42;
+  eRy = eRx * 0.72;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ========== ELLIPSE HELPERS ==========
+function insideEllipse(x, y) {
+  var dx = (x - cx) / eRx, dy = (y - cy) / eRy;
+  return dx * dx + dy * dy;
+}
+
+function constrainToEllipse(x, y, margin) {
+  margin = margin || 0.95;
+  var dx = (x - cx) / eRx, dy = (y - cy) / eRy;
+  var d2 = dx * dx + dy * dy;
+  if (d2 > margin * margin) {
+    var s = margin / Math.sqrt(d2);
+    return { x: cx + dx * s * eRx, y: cy + dy * s * eRy };
+  }
+  return { x: x, y: y };
+}
+
+// ========== DATA ==========
+var reasonDots = [];
+var ambientParticles = [];
+var syncLines = [];
+var trail = [];
+var categories = {};
+var time = 0;
+
+function initFromData(data) {
+  if (!data || data.length === 0) {
+    for (var i = 0; i < 25; i++) {
+      data.push({ id: i, category: 'default' });
+    }
+  }
+  var catMap = {};
+  for (var i = 0; i < data.length; i++) {
+    var r = data[i];
+    if (!catMap[r.category]) catMap[r.category] = [];
+    catMap[r.category].push(i);
+  }
+  categories = catMap;
+
+  var angle, dist;
+  for (var i = 0; i < data.length; i++) {
+    angle = Math.random() * Math.PI * 2;
+    dist = Math.random() * 0.5;
+    reasonDots.push({
+      x: cx + Math.cos(angle) * eRx * dist,
+      y: cy + Math.sin(angle) * eRy * dist,
+      vx: 0, vy: 0,
+      category: data[i].category,
+      id: data[i].id,
+      baseRadius: 2.5 + Math.random() * 1.5,
+      radius: 3,
+      phase: Math.random() * Math.PI * 2,
+      freq: 0.15 + Math.random() * 0.2,
+      ampMod: 0.4 + Math.random() * 0.6,
+      noiseSeed: Math.random() * 1000,
+      opacity: 0.07,
+      targetOpacity: 0.07
+    });
+  }
+
+  for (var i = 0; i < 100; i++) {
+    var parentIdx = Math.floor(Math.random() * data.length);
+    var parentDot = reasonDots[parentIdx];
+    var offX = (Math.random() - 0.5) * 40;
+    var offY = (Math.random() - 0.5) * 40;
+    ambientParticles.push({
+      x: parentDot ? parentDot.x + offX : cx + offX,
+      y: parentDot ? parentDot.y + offY : cy + offY,
+      vx: 0, vy: 0,
+      radius: 0.4 + Math.random() * 1.0,
+      opacity: 0,
+      noiseSeed: Math.random() * 1000,
+      alive: true,
+      fadeOut: 0,
+      parentIdx: parentIdx
+    });
+  }
+}
+
+// ========== GPX ROUTE ==========
+var routePoints = [];
+var routeProgress = 0;
+var paceSpeeds = [];
+var paceMax = 1;
+
+function parseGPX(xml) {
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(xml, 'text/xml');
+  var pts = doc.querySelectorAll('trkpt');
+  var raw = [];
+  for (var i = 0; i < pts.length; i++) {
+    raw.push({
+      lat: parseFloat(pts[i].getAttribute('lat')),
+      lon: parseFloat(pts[i].getAttribute('lon'))
+    });
+  }
+  if (raw.length === 0) return;
+
+  var minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
+  for (var i = 0; i < raw.length; i++) {
+    if (raw[i].lat < minLat) minLat = raw[i].lat;
+    if (raw[i].lat > maxLat) maxLat = raw[i].lat;
+    if (raw[i].lon < minLon) minLon = raw[i].lon;
+    if (raw[i].lon > maxLon) maxLon = raw[i].lon;
+  }
+
+  var latRange = maxLat - minLat || 1;
+  var lonRange = maxLon - minLon || 1;
+  var latMid = (minLat + maxLat) / 2;
+  var cosLat = Math.cos(latMid * Math.PI / 180);
+
+  for (var i = 0; i < raw.length; i++) {
+    var nx = ((raw[i].lon - minLon) / lonRange - 0.5) * 2 * cosLat;
+    var ny = -((raw[i].lat - minLat) / latRange - 0.5) * 2;
+    routePoints.push({ nx: nx, ny: ny });
+  }
+
+  // Normalize to fit inside ellipse with margin
+  var maxR = 0;
+  for (var i = 0; i < routePoints.length; i++) {
+    var r = Math.sqrt(routePoints[i].nx * routePoints[i].nx + routePoints[i].ny * routePoints[i].ny);
+    if (r > maxR) maxR = r;
+  }
+  var scale = 0.85 / (maxR || 1);
+  for (var i = 0; i < routePoints.length; i++) {
+    routePoints[i].nx *= scale;
+    routePoints[i].ny *= scale;
+  }
+}
+
+function routeToScreen(rp) {
+  return { x: cx + rp.nx * eRx, y: cy + rp.ny * eRy };
+}
+
+// ========== RUNNER ==========
+var runner = { x: 0, y: 0, vx: 0, vy: 0 };
+runner.x = cx;
+runner.y = cy;
+
+function updateRunner(dt) {
+  if (routePoints.length < 2) {
+    // Fallback: Perlin wander if no route loaded
+    var t = time * 0.08;
+    var targetX = cx + noise.noise2D(t, 0) * eRx * 0.5;
+    var targetY = cy + noise.noise2D(0, t) * eRy * 0.5;
+    runner.vx += (targetX - runner.x) * 0.008;
+    runner.vy += (targetY - runner.y) * 0.008;
+    runner.vx *= 0.96; runner.vy *= 0.96;
+    runner.x += runner.vx; runner.y += runner.vy;
+  } else {
+    // Speed from actual pace data, mapped to route position
+    var speedMult = 1;
+    if (paceSpeeds.length > 0) {
+      var paceIdx = Math.floor((routeProgress / routePoints.length) * paceSpeeds.length);
+      paceIdx = Math.max(0, Math.min(paceIdx, paceSpeeds.length - 1));
+      speedMult = 0.3 + (paceSpeeds[paceIdx] / paceMax) * 0.9;
+    }
+    routeProgress += dt * speedMult * 8;
+    if (routeProgress >= routePoints.length) {
+      routeProgress -= routePoints.length;
+      trail = [];
+    }
+
+    var idx = Math.floor(routeProgress);
+    var frac = routeProgress - idx;
+    var a = routePoints[idx % routePoints.length];
+    var b = routePoints[(idx + 1) % routePoints.length];
+    var sa = routeToScreen(a), sb = routeToScreen(b);
+    runner.x = sa.x + (sb.x - sa.x) * frac;
+    runner.y = sa.y + (sb.y - sa.y) * frac;
+  }
+
+  if (trail.length === 0 || Math.hypot(runner.x - trail[trail.length - 1].x, runner.y - trail[trail.length - 1].y) > 1.5) {
+    trail.push({ x: runner.x, y: runner.y, birth: time });
+  }
+  while (trail.length > 2000) trail.shift();
+}
+
+// ========== SHARED CONSTANTS ==========
+var RUNNER_REPEL_RADIUS = 45;
+
+// ========== REASON DOTS ==========
+function updateReasonDots(dt) {
+  for (var i = 0; i < reasonDots.length; i++) {
+    var d = reasonDots[i];
+
+    // Attraction to runner — moderate, keeps them nearby but not glued
+    var dx = runner.x - d.x, dy = runner.y - d.y;
+    var dist = Math.sqrt(dx * dx + dy * dy) + 0.1;
+    d.vx += dx / dist * 0.06;
+    d.vy += dy / dist * 0.06;
+
+    // Repulsion from runner (clear space around it)
+    if (dist < RUNNER_REPEL_RADIUS) {
+      var repel = (RUNNER_REPEL_RADIUS - dist) / RUNNER_REPEL_RADIUS * 0.8;
+      d.vx -= dx / dist * repel;
+      d.vy -= dy / dist * repel;
+    }
+
+    // Separation from other reason-dots
+    for (var j = 0; j < reasonDots.length; j++) {
+      if (i === j) continue;
+      var ox = d.x - reasonDots[j].x, oy = d.y - reasonDots[j].y;
+      var od = Math.sqrt(ox * ox + oy * oy) + 0.1;
+      if (od < 30) {
+        var push = (30 - od) / 30 * 0.25;
+        d.vx += ox / od * push;
+        d.vy += oy / od * push;
+      }
+    }
+
+    // Attraction to group center (keeps them together)
+    var gcx = 0, gcy = 0;
+    for (var j = 0; j < reasonDots.length; j++) { gcx += reasonDots[j].x; gcy += reasonDots[j].y; }
+    gcx /= reasonDots.length; gcy /= reasonDots.length;
+    d.vx += (gcx - d.x) * 0.004;
+    d.vy += (gcy - d.y) * 0.004;
+
+    // Individual Perlin wander — unique per dot, gentle
+    var wn = noise.noise2D(d.noiseSeed + time * 0.012, d.noiseSeed * 3);
+    var wn2 = noise2.noise2D(d.noiseSeed * 7, d.noiseSeed + time * 0.012);
+    d.vx += wn * 0.08;
+    d.vy += wn2 * 0.08;
+
+    // Damping
+    d.vx *= 0.93;
+    d.vy *= 0.93;
+    d.x += d.vx;
+    d.y += d.vy;
+
+    // Constrain
+    var c = constrainToEllipse(d.x, d.y, 0.92);
+    d.x = c.x; d.y = c.y;
+
+    // Size: very gentle breathing, not flickery
+    var sizeNoise = noise.noise2D(d.noiseSeed + time * 0.003, d.noiseSeed * 2);
+    d.radius = d.baseRadius + sizeNoise * 0.6;
+    d.radius = Math.max(1.5, Math.min(d.radius, 5));
+
+    // Brightness set by spotlight system — slow smooth lerp (~8s transition)
+    d.opacity += (d.targetOpacity - d.opacity) * 0.005;
+  }
+}
+
+// ========== GENERATIVE BRIGHTNESS ==========
+function updateSpotlight(dt) {
+  for (var i = 0; i < reasonDots.length; i++) {
+    var d = reasonDots[i];
+    var wave = noise.noise2D(d.noiseSeed * 0.3 + time * 0.008, d.noiseSeed * 1.1 + time * 0.006);
+    if (wave > 0.4) {
+      d.targetOpacity = 0.15 + (wave - 0.4) / 0.6 * 0.75;
+    } else {
+      d.targetOpacity = 0.10 + (wave + 1) * 0.04;
+    }
+  }
+}
+
+// ========== AMBIENT PARTICLES ==========
+
+function updateAmbient(dt) {
+  for (var i = 0; i < ambientParticles.length; i++) {
+    var p = ambientParticles[i];
+    if (!p.alive) continue;
+
+    // Attraction to parent reason-dot (gentle drift toward it)
+    var parent = reasonDots[p.parentIdx];
+    if (parent) {
+      var dx = parent.x - p.x, dy = parent.y - p.y;
+      var dist = Math.sqrt(dx * dx + dy * dy) + 0.1;
+      p.vx += dx / dist * 0.06;
+      p.vy += dy / dist * 0.06;
+      if (dist < 12) {
+        p.vx -= dx / dist * 0.04;
+        p.vy -= dy / dist * 0.04;
+      }
+      // Slight parent velocity influence (not lockstep)
+      p.vx += (parent.vx - p.vx) * 0.008;
+      p.vy += (parent.vy - p.vy) * 0.008;
+      // Match parent brightness
+      p.opacity = parent.opacity * 0.35;
+    }
+
+    // Repulsion from runner
+    var rdx = p.x - runner.x, rdy = p.y - runner.y;
+    var rdist = Math.sqrt(rdx * rdx + rdy * rdy) + 0.1;
+    if (rdist < RUNNER_REPEL_RADIUS) {
+      var repel = (RUNNER_REPEL_RADIUS - rdist) / RUNNER_REPEL_RADIUS * 0.6;
+      p.vx += rdx / rdist * repel;
+      p.vy += rdy / rdist * repel;
+    }
+
+    // Very gentle noise drift
+    var wn = noise.noise2D(p.noiseSeed + time * 0.012, p.noiseSeed * 5 + time * 0.012);
+    var wn2 = noise2.noise2D(p.noiseSeed * 3 + time * 0.012, p.noiseSeed + time * 0.012);
+    p.vx += wn * 0.02;
+    p.vy += wn2 * 0.02;
+
+    p.vx *= 0.95;
+    p.vy *= 0.95;
+    p.x += p.vx;
+    p.y += p.vy;
+
+    var c = constrainToEllipse(p.x, p.y, 0.93);
+    p.x = c.x; p.y = c.y;
+
+    // Capture by reason-dots
+    if (p.fadeOut === 0 && parent) {
+      var pdx = p.x - parent.x, pdy = p.y - parent.y;
+      var pdist = Math.sqrt(pdx * pdx + pdy * pdy);
+      if (pdist < parent.radius + 3 && Math.random() < 0.002) {
+        p.fadeOut = 1;
+      }
+    }
+
+    if (p.fadeOut > 0) {
+      p.fadeOut -= dt * 0.8;
+      p.opacity *= 0.96;
+      if (p.fadeOut <= 0) {
+        // Respawn near a random reason-dot
+        var newParent = Math.floor(Math.random() * reasonDots.length);
+        p.parentIdx = newParent;
+        var rd = reasonDots[newParent];
+        p.x = rd.x + (Math.random() - 0.5) * 50;
+        p.y = rd.y + (Math.random() - 0.5) * 50;
+        p.vx = 0; p.vy = 0;
+        p.opacity = 0;
+        p.fadeOut = 0;
+        p.alive = true;
+      }
+    }
+
+    // Occasionally switch parent to add mixing
+    if (Math.random() < 0.0003) {
+      p.parentIdx = Math.floor(Math.random() * reasonDots.length);
+    }
+  }
+}
+
+// ========== SYNC LINES ==========
+var nextSyncTime = 2;
+
+function updateSyncLines(dt) {
+  // Spawn new sync lines
+  nextSyncTime -= dt;
+  if (nextSyncTime <= 0 && reasonDots.length > 1) {
+    nextSyncTime = 15 + Math.random() * 20;
+    // Only pick from visible dots
+    var visible = [];
+    for (var v = 0; v < reasonDots.length; v++) {
+      if (reasonDots[v].opacity > 0.2) visible.push(v);
+    }
+    if (visible.length >= 2) {
+      var a = visible[Math.floor(Math.random() * visible.length)];
+      var b = visible[Math.floor(Math.random() * visible.length)];
+      if (a === b) b = visible[(visible.indexOf(b) + 1) % visible.length];
+      syncLines.push({ a: a, b: b, life: 0, maxLife: 5 + Math.random() * 5, fadeIn: 1 });
+    }
+  }
+
+  // Update existing
+  for (var i = syncLines.length - 1; i >= 0; i--) {
+    var sl = syncLines[i];
+    sl.life += dt;
+    if (sl.life > sl.maxLife) {
+      syncLines.splice(i, 1);
+    }
+  }
+}
+
+// ========== DRAW ==========
+function draw() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // Ellipse boundary
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, eRx, eRy, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Trail
+  if (trail.length > 1) {
+    ctx.beginPath();
+    ctx.moveTo(trail[0].x, trail[0].y);
+    for (var i = 1; i < trail.length; i++) {
+      ctx.lineTo(trail[i].x, trail[i].y);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Sync lines
+  for (var i = 0; i < syncLines.length; i++) {
+    var sl = syncLines[i];
+    var a = reasonDots[sl.a], b = reasonDots[sl.b];
+    if (!a || !b) continue;
+    var progress = sl.life / sl.maxLife;
+    var alpha;
+    if (progress < 0.2) alpha = progress / 0.2;
+    else if (progress > 0.7) alpha = (1 - progress) / 0.3;
+    else alpha = 1;
+    alpha *= 0.15;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = 'rgba(255,255,255,' + alpha + ')';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // Ambient particles
+  for (var i = 0; i < ambientParticles.length; i++) {
+    var p = ambientParticles[i];
+    if ((!p.alive && p.fadeOut <= 0) || p.opacity < 0.005) continue;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,' + p.opacity + ')';
+    ctx.fill();
+  }
+
+  // Reason dots
+  for (var i = 0; i < reasonDots.length; i++) {
+    var d = reasonDots[i];
+    if (d.opacity < 0.005) continue;
+
+    // Outer halo
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, d.radius * 5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,' + (d.opacity * 0.04) + ')';
+    ctx.fill();
+
+    // Inner halo
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, d.radius * 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,' + (d.opacity * 0.12) + ')';
+    ctx.fill();
+
+    // Core dot
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,' + d.opacity + ')';
+    ctx.fill();
+  }
+
+  // Runner — plain white dot, no halo
+  ctx.beginPath();
+  ctx.arc(runner.x, runner.y, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+}
+
+// ========== LOOP ==========
+var lastTime = 0;
+
+function loop(timestamp) {
+  var dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  lastTime = timestamp;
+  time += dt;
+
+  updateRunner(dt);
+  updateSpotlight(dt);
+  updateReasonDots(dt);
+  updateAmbient(dt);
+  updateSyncLines(dt);
+  draw();
+
+  requestAnimationFrame(loop);
+}
+
+// ========== INIT ==========
+function start(data) {
+  initFromData(data);
+  if (routePoints.length > 0) {
+    var sp = routeToScreen(routePoints[0]);
+    runner.x = sp.x;
+    runner.y = sp.y;
+  }
+  requestAnimationFrame(function(ts) {
+    lastTime = ts;
+    loop(ts);
+  });
+}
+
+Promise.all([
+  fetch('data.json').then(function(r) { return r.json(); }).catch(function() { return null; }),
+  fetch('route.gpx').then(function(r) { return r.text(); }).catch(function() { return ''; }),
+  fetch('pace.json').then(function(r) { return r.json(); }).catch(function() { return null; })
+]).then(function(results) {
+  var data = results[0], gpxText = results[1], speeds = results[2];
+  if (gpxText) parseGPX(gpxText);
+  if (speeds && Array.isArray(speeds)) {
+    paceSpeeds = speeds;
+    for (var i = 0; i < paceSpeeds.length; i++) {
+      if (paceSpeeds[i] > paceMax) paceMax = paceSpeeds[i];
+    }
+  }
+  if (data && Array.isArray(data)) start(data);
+  else start([]);
+});
+
+</script>
+</body>
+</html>
