@@ -9,14 +9,12 @@ echo ""
 echo "  ✦ Why I Run — Editor"
 echo ""
 
-# Check if data.json exists and has changes to commit
-if [ -f "data.json" ]; then
-  CHANGES=$(git status --porcelain data.json 2>/dev/null)
-  if [ -n "$CHANGES" ]; then
-    git add data.json
-    git commit -m "Auto-save: $(date '+%Y-%m-%d %H:%M')" --quiet 2>/dev/null
-    echo "  ✓ Committed unsaved changes"
-  fi
+# Commit any pending changes
+CHANGES=$(git status --porcelain 2>/dev/null)
+if [ -n "$CHANGES" ]; then
+  git add .
+  git commit -m "Auto-save: $(date '+%Y-%m-%d %H:%M')" --quiet 2>/dev/null
+  echo "  ✓ Committed pending changes"
 fi
 
 # Try to push if there's internet
