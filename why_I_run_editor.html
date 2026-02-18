@@ -10,124 +10,115 @@
 :root, [data-theme="dark"] {
   --bg: #0a0a0a;
   --surface: #111111;
-  --surface-alt: #1a1a1a;
-  --border: #222222;
-  --border-focus: #ffffff;
+  --surface-alt: #0e0e0e;
+  --border: #1e1e1e;
   --text: #e8e8e8;
   --text-secondary: #a0a0a0;
-  --text-muted: #666666;
+  --text-muted: #555555;
   --accent: #ffffff;
-  --accent-hover: #cccccc;
-  --danger: #888888;
-  --danger-hover: #aaaaaa;
-  --toolbar-bg: #000000;
-  --toolbar-border: #1a1a1a;
-  --input-bg: #111111;
-  --input-border: #333333;
+  --sidebar-bg: #0a0a0a;
+  --sidebar-item: transparent;
+  --sidebar-item-hover: #161616;
+  --sidebar-item-active: #1a1a1a;
+  --sidebar-active-border: #fff;
   --overlay-bg: rgba(0,0,0,0.6);
-  --cat-bg: #161616;
-  --cat-text: #888888;
-  --cell-hover: rgba(255,255,255,0.03);
-  --cell-edit-bg: #0d0d0d;
-  --diff-bg: rgba(255,255,255,0.05);
   --toast-bg: #1a1a1a;
   --toast-border: #333333;
-  --scrollbar: #333333;
-  --scrollbar-hover: #555555;
-  --toolbar-h: 52px;
-  --colheader-h: 36px;
-  --row-h: calc(50vh - 52px);
+  --scrollbar: #222222;
+  --scrollbar-hover: #444444;
+  --section-label: #444444;
+  --toolbar-h: 48px;
+  --sidebar-w: 240px;
 }
 
 /* Light mode */
 [data-theme="light"] {
   --bg: #ffffff;
   --surface: #ffffff;
-  --surface-alt: #f8f8f8;
-  --border: #e0e0e0;
-  --border-focus: #000000;
+  --surface-alt: #fafafa;
+  --border: #e8e8e8;
   --text: #111111;
   --text-secondary: #555555;
   --text-muted: #999999;
   --accent: #000000;
-  --accent-hover: #333333;
-  --danger: #666666;
-  --danger-hover: #444444;
-  --toolbar-bg: #000000;
-  --toolbar-border: #000000;
-  --input-bg: #111111;
-  --input-border: #333333;
+  --sidebar-bg: #fafafa;
+  --sidebar-item: transparent;
+  --sidebar-item-hover: #f0f0f0;
+  --sidebar-item-active: #eaeaea;
+  --sidebar-active-border: #000;
   --overlay-bg: rgba(0,0,0,0.3);
-  --cat-bg: #f4f4f4;
-  --cat-text: #666666;
-  --cell-hover: rgba(0,0,0,0.02);
-  --cell-edit-bg: #fafafa;
-  --diff-bg: rgba(0,0,0,0.04);
   --toast-bg: #111111;
   --toast-border: #333333;
   --scrollbar: #cccccc;
   --scrollbar-hover: #aaaaaa;
+  --section-label: #bbbbbb;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: background 0.3s, color 0.3s; }
+body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: background 0.3s, color 0.3s; display: flex; flex-direction: column; }
 
 /* Toolbar */
-#toolbar { height: var(--toolbar-h); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--toolbar-bg); color: #fff; gap: 12px; z-index: 100; border-bottom: 1px solid var(--toolbar-border); }
+#toolbar { height: var(--toolbar-h); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #000; color: #fff; gap: 12px; z-index: 100; flex-shrink: 0; }
 #toolbar h1 { font-size: 15px; font-weight: 500; white-space: nowrap; letter-spacing: 0.01em; }
 #toolbar .actions { display: flex; align-items: center; gap: 6px; }
-#toolbar input[type="text"] { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--input-border); background: var(--input-bg); color: #fff; font-size: 13px; width: 160px; outline: none; transition: border-color 0.15s; }
+#toolbar input[type="text"] { padding: 5px 10px; border-radius: 4px; border: 1px solid #333; background: #111; color: #fff; font-size: 12px; width: 140px; outline: none; font-family: inherit; }
 #toolbar input[type="text"]:focus { border-color: #fff; }
 #toolbar input[type="text"]::placeholder { color: #555; }
-.btn { padding: 6px 14px; border-radius: 4px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; letter-spacing: 0.01em; }
+.btn { padding: 5px 12px; border-radius: 4px; border: none; font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; font-family: inherit; }
 .btn-primary { background: #fff; color: #000; }
 .btn-primary:hover { background: #ddd; }
 .btn-ghost { background: transparent; color: #999; border: 1px solid #333; }
 .btn-ghost:hover { background: #222; color: #fff; }
 .btn-danger { background: transparent; color: #999; border: 1px solid #333; }
 .btn-danger:hover { background: #222; color: #fff; }
-.version-badge { background: #222; color: #666; font-size: 11px; padding: 2px 7px; border-radius: 3px; margin-left: 4px; }
-
-/* Theme toggle */
-#theme-toggle { background: none; border: 1px solid #333; color: #999; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; padding: 0; }
+.version-badge { background: #222; color: #666; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 3px; }
+#theme-toggle { background: none; border: 1px solid #333; color: #999; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; padding: 0; }
 #theme-toggle:hover { background: #222; color: #fff; }
 
+/* Main layout */
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* Sidebar */
+#sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+#sidebar-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.sidebar-cat { padding: 12px 16px 4px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--section-label); }
+.sidebar-item { padding: 8px 16px; font-size: 13px; line-height: 1.4; cursor: pointer; color: var(--text-secondary); border-left: 2px solid transparent; transition: all 0.1s; }
+.sidebar-item:hover { background: var(--sidebar-item-hover); color: var(--text); }
+.sidebar-item.active { background: var(--sidebar-item-active); color: var(--text); border-left-color: var(--sidebar-active-border); }
+.sidebar-item .item-num { color: var(--text-muted); margin-right: 6px; font-size: 11px; }
+
+/* Detail panel */
+#detail { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+#detail-inner { max-width: 780px; width: 100%; margin: 0 auto; padding: 40px 48px 80px; }
+#detail-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; }
+
+/* Detail sections */
+.detail-title { font-size: 22px; font-weight: 600; line-height: 1.3; color: var(--text); margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.detail-title .num { color: var(--text-muted); font-weight: 400; font-size: 18px; margin-right: 4px; }
+
+.section-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--section-label); margin-bottom: 8px; }
+
+.detail-section { margin-bottom: 32px; }
+.detail-section .content { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+.detail-section .content[contenteditable="true"] { outline: none; }
+.detail-section .content ul { padding-left: 20px; margin: 0; }
+.detail-section .content ul li { margin-bottom: 6px; }
+.detail-section .content p { margin-bottom: 10px; }
+
+.detail-section.essay-section .content { color: var(--text); font-size: 15px; line-height: 1.75; }
+.detail-section.essay-section .content:empty::before { content: 'Click to start writing...'; color: var(--text-muted); font-style: italic; }
+
+.detail-section.raw-section { border-top: 1px solid var(--border); padding-top: 24px; }
+.detail-section.raw-section .content { font-size: 12.5px; line-height: 1.65; color: var(--text-muted); }
+
 /* Toast */
-#toast-container { position: fixed; top: 62px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+#toast-container { position: fixed; top: 58px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
 .toast { padding: 10px 18px; border-radius: 4px; color: #fff; font-size: 13px; font-weight: 400; border: 1px solid var(--toast-border); background: var(--toast-bg); box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards; max-width: 320px; }
 .toast-success { border-left: 2px solid #fff; }
 .toast-info { border-left: 2px solid #666; }
 .toast-warn { border-left: 2px solid #999; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
-
-/* Column Headers */
-#col-headers { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(220px, 1.8fr) minmax(280px, 2.5fr); height: var(--colheader-h); background: var(--surface-alt); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
-#col-headers .col-h { display: flex; align-items: center; padding: 0 14px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); border-right: 1px solid var(--border); }
-#col-headers .col-h:last-child { border-right: none; }
-
-/* Grid */
-#grid-wrap { height: calc(100vh - var(--toolbar-h) - var(--colheader-h)); overflow-y: auto; overflow-x: hidden; }
-#grid { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(220px, 1.8fr) minmax(280px, 2.5fr); }
-
-/* Category rows */
-.cat-row { grid-column: 1 / -1; padding: 8px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cat-text); background: var(--cat-bg); display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
-
-/* Cells */
-.cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); position: relative; cursor: text; transition: background 0.15s; min-height: 120px; max-height: var(--row-h); overflow-y: auto; }
-.cell:last-child { border-right: none; }
-.cell:hover { background: var(--surface); }
-.cell.editing { z-index: 5; }
-.cell .display { padding: 10px 14px; font-size: 13px; line-height: 1.6; min-height: 100%; }
-.cell .display.title-display { font-weight: 600; font-size: 14px; color: var(--text); }
-.cell .display.title-display .num { color: var(--text-muted); font-weight: 400; margin-right: 4px; font-size: 12px; }
-.cell .display ul { padding-left: 18px; margin: 0; }
-.cell .display ul li { margin-bottom: 4px; color: var(--text-secondary); }
-.cell .display.raw-display { color: var(--text-secondary); font-size: 12.5px; line-height: 1.65; }
-.cell .display.raw-display p { margin-bottom: 8px; }
-.cell .display[contenteditable="true"] { outline: none; cursor: text; }
-.cell .display.title-display .num { pointer-events: none; }
-.cell .cat-indicator { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--border); }
 
 /* History Panel */
 #history-overlay { position: fixed; inset: 0; background: var(--overlay-bg); z-index: 200; display: none; }
@@ -153,45 +144,41 @@ body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: 
 #save-modal-overlay.show { display: flex; }
 #save-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
 #save-modal h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
-#save-modal input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; outline: none; margin-bottom: 16px; background: var(--surface-alt); color: var(--text); }
+#save-modal input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; outline: none; margin-bottom: 16px; background: var(--surface-alt); color: var(--text); font-family: inherit; }
 #save-modal input:focus { border-color: var(--accent); }
 #save-modal .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
-/* Diff highlights */
-.cell.diff-changed { background: var(--diff-bg); }
-
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
-/* Search highlight */
 .search-hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <div id="toolbar">
-  <h1>Why I Run — Editor</h1>
+  <h1>Why I Run</h1>
   <div class="actions">
     <input type="text" id="search-input" placeholder="Search..." />
     <button class="btn btn-primary" id="btn-save">Save Version</button>
     <button class="btn btn-ghost" id="btn-history">History <span class="version-badge" id="version-count">0</span></button>
-    <button class="btn btn-ghost" id="btn-export">Export .md</button>
+    <button class="btn btn-ghost" id="btn-export">Export</button>
     <span class="version-badge" id="git-status" style="display:none;font-size:10px;">...</span>
     <button id="theme-toggle" title="Toggle light/dark mode">&#9789;</button>
   </div>
 </div>
 
-<div id="col-headers">
-  <div class="col-h">Title</div>
-  <div class="col-h">Key Points</div>
-  <div class="col-h">Raw Transcript</div>
-</div>
-
-<div id="grid-wrap">
-  <div id="grid"></div>
+<div id="main">
+  <div id="sidebar">
+    <div id="sidebar-list"></div>
+  </div>
+  <div id="detail">
+    <div id="detail-empty">Select a reason from the sidebar</div>
+    <div id="detail-inner" style="display:none;"></div>
+  </div>
 </div>
 
 <div id="history-overlay"></div>
@@ -217,7 +204,7 @@ body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: 
 <div id="toast-container"></div>
 
 <script>
-// ========== TOAST SYSTEM ==========
+// ========== TOAST ==========
 function showToast(message, type) {
   type = type || 'info';
   var container = document.getElementById('toast-container');
@@ -225,478 +212,363 @@ function showToast(message, type) {
   toast.className = 'toast toast-' + type;
   toast.textContent = message;
   container.appendChild(toast);
-  setTimeout(function() {
-    if (toast.parentNode) toast.parentNode.removeChild(toast);
-  }, 2600);
+  setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 2600);
 }
 
-// ========== STORAGE LAYER ==========
+// ========== STORAGE ==========
 var storageAvailable = false;
 var memoryStore = {};
 
 function initStorage() {
-  try {
-    var testKey = '__storage_test__';
-    localStorage.setItem(testKey, 'test');
-    localStorage.removeItem(testKey);
-    storageAvailable = true;
-    console.log('[Editor] localStorage is available');
-  } catch(e) {
-    storageAvailable = false;
-    console.warn('[Editor] localStorage NOT available, using in-memory fallback');
-    showToast('Storage limited: changes won\'t persist after reload', 'warn');
-  }
+  try { var k = '__t__'; localStorage.setItem(k, '1'); localStorage.removeItem(k); storageAvailable = true; }
+  catch(e) { storageAvailable = false; }
 }
-
 function storeSet(key, value) {
   var json = JSON.stringify(value);
-  if (storageAvailable) {
-    try {
-      localStorage.setItem(key, json);
-    } catch(e) {
-      console.error('[Editor] localStorage write failed:', e);
-      memoryStore[key] = json;
-    }
-  } else {
-    memoryStore[key] = json;
-  }
+  if (storageAvailable) { try { localStorage.setItem(key, json); } catch(e) { memoryStore[key] = json; } }
+  else { memoryStore[key] = json; }
 }
-
 function storeGet(key) {
-  var raw;
-  if (storageAvailable) {
-    raw = localStorage.getItem(key);
-  } else {
-    raw = memoryStore[key] || null;
-  }
-  if (raw) {
-    try { return JSON.parse(raw); } catch(e) { return null; }
-  }
+  var raw = storageAvailable ? localStorage.getItem(key) : (memoryStore[key] || null);
+  if (raw) { try { return JSON.parse(raw); } catch(e) { return null; } }
   return null;
 }
 
-// ========== CATEGORY COLORS (monochrome) ==========
-var CAT_COLORS = {
-  core: 'transparent',
-  embodied: 'transparent',
-  identity: 'transparent',
-  meaning: 'transparent',
-  personal: 'transparent',
-  emerging: 'transparent',
-  simulation: 'transparent'
-};
-
+// ========== CATEGORIES ==========
 var CATEGORIES = [
-  { id: 'core', name: 'Core Motivations (Internal / Psychological)' },
-  { id: 'embodied', name: 'Embodied & Sensory Motivations' },
-  { id: 'identity', name: 'Identity, Play, and Social Dimensions' },
-  { id: 'meaning', name: 'Meaning, History, and Ethics' },
-  { id: 'personal', name: 'Personal History & Self-Transformation' },
-  { id: 'emerging', name: 'Emerging Motivation \u2014 Health and Longevity' },
-  { id: 'simulation', name: 'Running as a Simulation of Life Itself' }
+  { id: 'core', name: 'Core' },
+  { id: 'embodied', name: 'Embodied & Sensory' },
+  { id: 'identity', name: 'Identity & Social' },
+  { id: 'meaning', name: 'Meaning & Ethics' },
+  { id: 'personal', name: 'Personal History' },
+  { id: 'emerging', name: 'Emerging' },
+  { id: 'simulation', name: 'Simulation of Life' }
 ];
 
-var INITIAL_REASONS = [];
+function getCatName(catId) {
+  for (var i = 0; i < CATEGORIES.length; i++) { if (CATEGORIES[i].id === catId) return CATEGORIES[i].name; }
+  return '';
+}
 
 // ========== STATE ==========
 var reasons = [];
 var versions = [];
+var selectedId = null;
 var editingCell = null;
 var dirty = false;
 var previewVersionId = null;
-
 var STORAGE_KEY = 'whyirun_data';
 var VERSIONS_KEY = 'whyirun_versions';
 
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+function getReasonById(id) {
+  for (var i = 0; i < reasons.length; i++) { if (reasons[i].id === id) return reasons[i]; }
+  return null;
+}
 
 // ========== SERVER API ==========
-var useServer = false; // auto-detected
-
-function apiUrl(path) { return path; } // relative URLs when served by server
+var useServer = false;
 
 function serverSave(reasons, message) {
   if (!useServer) return;
-  fetch('/api/save', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ reasons: reasons, message: message || '' })
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (data.ok) {
-      console.log('[Server] Saved to file + git commit');
-      updateGitStatus();
-    } else {
-      console.error('[Server] Save error:', data.error);
-    }
-  }).catch(function(e) {
-    console.warn('[Server] Save failed (offline?):', e.message);
-  });
-}
-
-function serverSaveVersion(reasons, label) {
-  if (!useServer) return;
-  fetch('/api/version', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reasons: reasons, label: label })
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (data.ok) {
-      console.log('[Server] Version saved to git');
-      updateGitStatus();
-    }
-  }).catch(function(e) {
-    console.warn('[Server] Version save failed:', e.message);
-  });
-}
-
-function updateGitStatus() {
-  if (!useServer) return;
-  fetch('/api/status').then(function(r) { return r.json(); }).then(function(data) {
-    if (data.ok) {
-      var badge = document.getElementById('git-status');
-      if (badge) {
-        if (!data.hasRemote) {
-          badge.textContent = 'no remote';
-          badge.style.background = '#92400e';
-        } else if (data.pushPending) {
-          badge.textContent = 'pushing...';
-          badge.style.background = '#d97706';
-        } else {
-          badge.textContent = 'synced';
-          badge.style.background = '#059669';
-        }
-        badge.style.display = 'inline-block';
-      }
-      // Update git commit count
-      var gitCount = document.getElementById('git-commit-count');
-      if (gitCount && data.commits) {
-        gitCount.textContent = data.commits.length + ' commits';
-      }
-    }
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.ok) updateGitStatus();
   }).catch(function() {});
 }
-
-function detectServer() {
-  return fetch('/api/status').then(function(r) { return r.json(); }).then(function(data) {
-    if (data.ok) {
-      useServer = true;
-      console.log('[Editor] Server detected — git auto-push enabled');
-      return true;
-    }
-    return false;
-  }).catch(function() {
-    useServer = false;
-    console.log('[Editor] No server — using local storage only');
-    return false;
-  });
+function serverSaveVersion(reasons, label) {
+  if (!useServer) return;
+  fetch('/api/version', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reasons: reasons, label: label })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.ok) updateGitStatus();
+  }).catch(function() {});
 }
-
+function updateGitStatus() {
+  if (!useServer) return;
+  fetch('/api/status').then(function(r) { return r.json(); }).then(function(d) {
+    if (!d.ok) return;
+    var badge = document.getElementById('git-status');
+    if (!badge) return;
+    badge.textContent = d.hasRemote ? 'synced' : 'no remote';
+    badge.style.background = d.hasRemote ? '#059669' : '#92400e';
+    badge.style.display = 'inline-block';
+  }).catch(function() {});
+}
+function detectServer() {
+  return fetch('/api/status').then(function(r) { return r.json(); }).then(function(d) {
+    if (d.ok) { useServer = true; return true; } return false;
+  }).catch(function() { useServer = false; return false; });
+}
 function serverLoadData() {
-  return fetch('/api/data').then(function(r) { return r.json(); }).then(function(data) {
-    if (data.ok && data.data && Array.isArray(data.data) && data.data.length > 0) {
-      return data.data;
-    }
+  return fetch('/api/data').then(function(r) { return r.json(); }).then(function(d) {
+    if (d.ok && d.data && Array.isArray(d.data) && d.data.length > 0) return d.data;
     return null;
   }).catch(function() { return null; });
 }
 
 // ========== LOAD / SAVE ==========
 function loadState(callback) {
-  // Try server first, fall back to localStorage
   function finishLoad(serverData) {
     if (serverData && Array.isArray(serverData) && serverData.length > 0) {
       reasons = serverData;
-      console.log('[Editor] Loaded', reasons.length, 'reasons from server');
     } else {
       var saved = storeGet(STORAGE_KEY);
-      if (saved && Array.isArray(saved) && saved.length > 0) {
-        reasons = saved;
-        console.log('[Editor] Loaded', reasons.length, 'reasons from localStorage');
-      } else {
-        reasons = [];
-        console.log('[Editor] No data found');
-      }
+      if (saved && Array.isArray(saved) && saved.length > 0) { reasons = saved; }
+      else { reasons = []; }
     }
-
+    // Ensure every reason has an essayText field
+    for (var i = 0; i < reasons.length; i++) {
+      if (typeof reasons[i].essayText === 'undefined') reasons[i].essayText = '';
+    }
     var savedVersions = storeGet(VERSIONS_KEY);
-    if (savedVersions && Array.isArray(savedVersions) && savedVersions.length > 0) {
-      versions = savedVersions;
-    } else {
-      versions = [];
-    }
-
+    versions = (savedVersions && Array.isArray(savedVersions)) ? savedVersions : [];
     if (versions.length === 0 && reasons.length > 0) {
-      var initialVersion = {
-        id: String(Date.now()),
-        timestamp: Date.now(),
-        label: 'Initial version',
-        data: deepClone(reasons)
-      };
-      versions.push(initialVersion);
+      versions.push({ id: String(Date.now()), timestamp: Date.now(), label: 'Initial version', data: deepClone(reasons) });
       storeSet(VERSIONS_KEY, versions);
     }
-
     updateVersionCount();
     if (callback) callback();
   }
-
-  if (useServer) {
-    serverLoadData().then(function(data) { finishLoad(data); });
-  } else {
-    finishLoad(null);
-  }
+  if (useServer) { serverLoadData().then(function(d) { finishLoad(d); }); }
+  else { finishLoad(null); }
 }
 
 function autoSave() {
   storeSet(STORAGE_KEY, reasons);
   serverSave(reasons);
-  console.log('[Editor] Auto-saved');
 }
 
 function saveVersion(label) {
-  var v = {
-    id: String(Date.now()),
-    timestamp: Date.now(),
-    label: label || 'Untitled save',
-    data: deepClone(reasons)
-  };
+  var v = { id: String(Date.now()), timestamp: Date.now(), label: label || 'Untitled save', data: deepClone(reasons) };
   versions.push(v);
   storeSet(VERSIONS_KEY, versions);
   dirty = false;
   updateVersionCount();
-
-  // Also save to server with explicit version label
   serverSaveVersion(reasons, v.label);
-
   showToast('Version saved: ' + v.label, 'success');
-  console.log('[Editor] Saved version:', v.label, '| Total versions:', versions.length);
 }
-
 function restoreVersion(versionId) {
   var v = null;
-  for (var i = 0; i < versions.length; i++) {
-    if (versions[i].id === versionId) { v = versions[i]; break; }
-  }
-  if (!v) { showToast('Version not found', 'warn'); return; }
+  for (var i = 0; i < versions.length; i++) { if (versions[i].id === versionId) { v = versions[i]; break; } }
+  if (!v) return;
   reasons = deepClone(v.data);
+  for (var j = 0; j < reasons.length; j++) {
+    if (typeof reasons[j].essayText === 'undefined') reasons[j].essayText = '';
+  }
   autoSave();
   dirty = false;
   previewVersionId = null;
-  renderGrid();
+  renderSidebar();
+  renderDetail();
   showToast('Restored: ' + v.label, 'info');
-  console.log('[Editor] Restored version:', v.label);
 }
-
 function updateVersionCount() {
-  var badge = document.getElementById('version-count');
-  if (badge) badge.textContent = String(versions.length);
+  var b = document.getElementById('version-count');
+  if (b) b.textContent = String(versions.length);
 }
 
-// ========== RENDERING ==========
-function getCatColor(catId) { return CAT_COLORS[catId] || '#888'; }
-function getCatName(catId) {
-  for (var i = 0; i < CATEGORIES.length; i++) {
-    if (CATEGORIES[i].id === catId) return CATEGORIES[i].name;
-  }
-  return '';
-}
+// ========== HELPERS ==========
+function escapeHtml(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
-function escapeHtml(str) {
-  var div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function renderGrid() {
-  var grid = document.getElementById('grid');
-  grid.innerHTML = '';
+// ========== SIDEBAR ==========
+function renderSidebar() {
+  var list = document.getElementById('sidebar-list');
+  list.innerHTML = '';
   var query = document.getElementById('search-input').value.toLowerCase().trim();
-
   var currentCat = null;
-  for (var ri = 0; ri < reasons.length; ri++) {
-    var r = reasons[ri];
-    var searchable = (r.title + ' ' + r.bullets.join(' ') + ' ' + r.rawText).toLowerCase();
+
+  for (var i = 0; i < reasons.length; i++) {
+    var r = reasons[i];
+    var searchable = (r.title + ' ' + r.bullets.join(' ') + ' ' + r.rawText + ' ' + (r.essayText || '')).toLowerCase();
     var hidden = query && searchable.indexOf(query) === -1;
+    if (hidden) continue;
 
     if (r.category !== currentCat) {
       currentCat = r.category;
-      var catRow = document.createElement('div');
-      catRow.className = 'cat-row' + (hidden ? ' search-hidden' : '');
-      catRow.setAttribute('data-cat', r.category);
-      catRow.textContent = getCatName(r.category);
-      grid.appendChild(catRow);
+      var catEl = document.createElement('div');
+      catEl.className = 'sidebar-cat';
+      catEl.textContent = getCatName(r.category);
+      list.appendChild(catEl);
     }
 
-    if (!hidden) {
-      var catRows = grid.querySelectorAll('.cat-row[data-cat="' + r.category + '"]');
-      for (var ci = 0; ci < catRows.length; ci++) catRows[ci].classList.remove('search-hidden');
-    }
-
-    grid.appendChild(createCell(r, 'title', hidden));
-    grid.appendChild(createCell(r, 'bullets', hidden));
-    grid.appendChild(createCell(r, 'rawText', hidden));
+    var item = document.createElement('div');
+    item.className = 'sidebar-item' + (selectedId === r.id ? ' active' : '');
+    item.innerHTML = '<span class="item-num">' + r.id + '.</span>' + escapeHtml(r.title);
+    (function(id) {
+      item.addEventListener('click', function() { selectReason(id); });
+    })(r.id);
+    list.appendChild(item);
   }
 }
 
-function createCell(reason, field, hidden) {
-  var cell = document.createElement('div');
-  cell.className = 'cell' + (hidden ? ' search-hidden' : '');
-  cell.setAttribute('data-id', String(reason.id));
-  cell.setAttribute('data-field', field);
-
-  if (field === 'title') {
-    var indicator = document.createElement('div');
-    indicator.className = 'cat-indicator';
-    cell.appendChild(indicator);
-  }
-
-  // Diff highlight
-  if (previewVersionId) {
-    var pv = null;
-    for (var i = 0; i < versions.length; i++) {
-      if (versions[i].id === previewVersionId) { pv = versions[i]; break; }
-    }
-    if (pv) {
-      var pvReason = null;
-      for (var j = 0; j < pv.data.length; j++) {
-        if (pv.data[j].id === reason.id) { pvReason = pv.data[j]; break; }
-      }
-      if (pvReason) {
-        var curr = field === 'bullets' ? reason.bullets.join('\n') : reason[field];
-        var prev = field === 'bullets' ? pvReason.bullets.join('\n') : pvReason[field];
-        if (curr !== prev) cell.classList.add('diff-changed');
-      }
-    }
-  }
-
-  // Display div
-  var display = document.createElement('div');
-  display.className = 'display';
-
-  if (field === 'title') {
-    display.classList.add('title-display');
-    display.innerHTML = '<span class="num" contenteditable="false">' + reason.id + '.</span> ' + escapeHtml(reason.title);
-  } else if (field === 'bullets') {
-    var html = '<ul>';
-    for (var bi = 0; bi < reason.bullets.length; bi++) {
-      html += '<li>' + escapeHtml(reason.bullets[bi]) + '</li>';
-    }
-    html += '</ul>';
-    display.innerHTML = html;
-  } else {
-    display.classList.add('raw-display');
-    var paragraphs = reason.rawText.split('\n\n');
-    var phtml = '';
-    for (var pi = 0; pi < paragraphs.length; pi++) {
-      phtml += '<p>' + escapeHtml(paragraphs[pi]) + '</p>';
-    }
-    display.innerHTML = phtml;
-  }
-  cell.appendChild(display);
-
-  // Click to edit in-place via contenteditable
-  (function(c, rid, f, disp) {
-    disp.addEventListener('click', function() {
-      if (disp.contentEditable === 'true') return;
-      startEdit(c, rid, f, disp);
-    });
-  })(cell, reason.id, field, display);
-
-  return cell;
-}
-
-function startEdit(cell, reasonId, field, display) {
-  // Save and close any previous edit
+function selectReason(id) {
+  // Save any pending edit before switching
   if (editingCell) {
     saveEditable(editingCell.reasonId, editingCell.field, editingCell.editable);
     editingCell.editable.contentEditable = 'false';
     editingCell = null;
   }
+  selectedId = id;
+  renderSidebar();
+  renderDetail();
+}
 
-  display.contentEditable = 'true';
-  display.focus();
+// ========== DETAIL VIEW ==========
+function renderDetail() {
+  var inner = document.getElementById('detail-inner');
+  var empty = document.getElementById('detail-empty');
+  var r = getReasonById(selectedId);
 
-  // Place cursor at end
+  if (!r) {
+    inner.style.display = 'none';
+    empty.style.display = 'flex';
+    return;
+  }
+
+  empty.style.display = 'none';
+  inner.style.display = 'block';
+  inner.innerHTML = '';
+
+  // Title
+  var titleEl = document.createElement('div');
+  titleEl.className = 'detail-title';
+  titleEl.innerHTML = '<span class="num" contenteditable="false">' + r.id + '.</span> ' + escapeHtml(r.title);
+  inner.appendChild(titleEl);
+  makeEditable(titleEl, r.id, 'title');
+
+  // Bullets
+  var bulletsSection = document.createElement('div');
+  bulletsSection.className = 'detail-section';
+  bulletsSection.innerHTML = '<div class="section-label">Key Points</div>';
+  var bulletsContent = document.createElement('div');
+  bulletsContent.className = 'content';
+  var bhtml = '<ul>';
+  for (var bi = 0; bi < r.bullets.length; bi++) { bhtml += '<li>' + escapeHtml(r.bullets[bi]) + '</li>'; }
+  bhtml += '</ul>';
+  bulletsContent.innerHTML = bhtml;
+  bulletsSection.appendChild(bulletsContent);
+  inner.appendChild(bulletsSection);
+  makeEditable(bulletsContent, r.id, 'bullets');
+
+  // Essay (new text)
+  var essaySection = document.createElement('div');
+  essaySection.className = 'detail-section essay-section';
+  essaySection.innerHTML = '<div class="section-label">Essay</div>';
+  var essayContent = document.createElement('div');
+  essayContent.className = 'content';
+  if (r.essayText) {
+    var eParagraphs = r.essayText.split('\n\n');
+    var ehtml = '';
+    for (var ei = 0; ei < eParagraphs.length; ei++) { ehtml += '<p>' + escapeHtml(eParagraphs[ei]) + '</p>'; }
+    essayContent.innerHTML = ehtml;
+  }
+  essaySection.appendChild(essayContent);
+  inner.appendChild(essaySection);
+  makeEditable(essayContent, r.id, 'essayText');
+
+  // Raw transcript
+  var rawSection = document.createElement('div');
+  rawSection.className = 'detail-section raw-section';
+  rawSection.innerHTML = '<div class="section-label">Original Transcript</div>';
+  var rawContent = document.createElement('div');
+  rawContent.className = 'content';
+  var paragraphs = r.rawText.split('\n\n');
+  var phtml = '';
+  for (var pi = 0; pi < paragraphs.length; pi++) { phtml += '<p>' + escapeHtml(paragraphs[pi]) + '</p>'; }
+  rawContent.innerHTML = phtml;
+  rawSection.appendChild(rawContent);
+  inner.appendChild(rawSection);
+  makeEditable(rawContent, r.id, 'rawText');
+}
+
+// ========== INLINE EDITING ==========
+function makeEditable(el, reasonId, field) {
+  el.addEventListener('click', function() {
+    if (el.contentEditable === 'true') return;
+    startEdit(el, reasonId, field);
+  });
+}
+
+function startEdit(el, reasonId, field) {
+  if (editingCell) {
+    saveEditable(editingCell.reasonId, editingCell.field, editingCell.editable);
+    editingCell.editable.contentEditable = 'false';
+    editingCell = null;
+  }
+  el.contentEditable = 'true';
+  el.focus();
   var sel = window.getSelection();
   var range = document.createRange();
-  range.selectNodeContents(display);
+  range.selectNodeContents(el);
   range.collapse(false);
   sel.removeAllRanges();
   sel.addRange(range);
 
-  editingCell = { reasonId: reasonId, field: field, editable: display };
+  editingCell = { reasonId: reasonId, field: field, editable: el };
 
   function onBlur() {
-    display.removeEventListener('blur', onBlur);
-    display.contentEditable = 'false';
-    saveEditable(reasonId, field, display);
+    el.removeEventListener('blur', onBlur);
+    el.contentEditable = 'false';
+    saveEditable(reasonId, field, el);
     editingCell = null;
   }
-
   function onKeydown(e) {
     if (e.key === 'Escape') {
-      display.removeEventListener('blur', onBlur);
-      display.removeEventListener('keydown', onKeydown);
-      display.contentEditable = 'false';
+      el.removeEventListener('blur', onBlur);
+      el.removeEventListener('keydown', onKeydown);
+      el.contentEditable = 'false';
       editingCell = null;
-      renderGrid();
+      renderDetail();
     }
   }
-
-  display.addEventListener('blur', onBlur);
-  display.addEventListener('keydown', onKeydown);
+  el.addEventListener('blur', onBlur);
+  el.addEventListener('keydown', onKeydown);
 }
 
 function saveEditable(reasonId, field, el) {
-  var r = null;
-  for (var i = 0; i < reasons.length; i++) {
-    if (reasons[i].id === reasonId) { r = reasons[i]; break; }
-  }
+  var r = getReasonById(reasonId);
   if (!r) return;
-
   var changed = false;
 
   if (field === 'title') {
     var numSpan = el.querySelector('.num');
     var numText = numSpan ? numSpan.textContent : '';
     var newTitle = el.textContent.replace(numText, '').trim();
-    if (r.title !== newTitle) {
-      r.title = newTitle;
-      changed = true;
-    }
+    if (r.title !== newTitle) { r.title = newTitle; changed = true; }
   } else if (field === 'bullets') {
     var lis = el.querySelectorAll('li');
     var newBullets = [];
     for (var j = 0; j < lis.length; j++) {
-      var text = lis[j].textContent.trim();
-      if (text.length > 0) newBullets.push(text);
+      var t = lis[j].textContent.trim();
+      if (t.length > 0) newBullets.push(t);
     }
-    if (JSON.stringify(r.bullets) !== JSON.stringify(newBullets)) {
-      r.bullets = newBullets;
-      changed = true;
-    }
-  } else if (field === 'rawText') {
+    if (JSON.stringify(r.bullets) !== JSON.stringify(newBullets)) { r.bullets = newBullets; changed = true; }
+  } else if (field === 'essayText' || field === 'rawText') {
     var ps = el.querySelectorAll('p');
-    var newRaw;
+    var newText;
     if (ps.length > 0) {
       var parts = [];
-      for (var k = 0; k < ps.length; k++) {
-        parts.push(ps[k].textContent);
-      }
-      newRaw = parts.join('\n\n');
+      for (var k = 0; k < ps.length; k++) { parts.push(ps[k].textContent); }
+      newText = parts.join('\n\n');
     } else {
-      newRaw = el.innerText.trim();
+      newText = el.innerText.trim();
     }
-    if (r.rawText !== newRaw) {
-      r.rawText = newRaw;
-      changed = true;
-    }
+    if (r[field] !== newText) { r[field] = newText; changed = true; }
   }
 
   if (changed) {
     dirty = true;
     autoSave();
+    if (field === 'title') renderSidebar();
   }
+}
+
+// ========== RENDER ALL ==========
+function renderGrid() {
+  renderSidebar();
+  renderDetail();
 }
 
 // ========== VERSION HISTORY ==========
@@ -704,96 +576,30 @@ function toggleHistory() {
   var panel = document.getElementById('history-panel');
   var overlay = document.getElementById('history-overlay');
   var showing = !panel.classList.contains('show');
-  if (showing) {
-    panel.classList.add('show');
-    overlay.classList.add('show');
-    renderVersionsList();
-  } else {
-    panel.classList.remove('show');
-    overlay.classList.remove('show');
-    previewVersionId = null;
-    renderGrid();
-  }
+  if (showing) { panel.classList.add('show'); overlay.classList.add('show'); renderVersionsList(); }
+  else { panel.classList.remove('show'); overlay.classList.remove('show'); previewVersionId = null; }
 }
-
 function renderVersionsList() {
   var list = document.getElementById('versions-list');
   list.innerHTML = '';
-
-  if (versions.length === 0) {
-    list.innerHTML = '<p style="color:#999;padding:20px;text-align:center;">No versions yet. Click "Save Version" to create one.</p>';
-    return;
-  }
-
-  // Show newest first
+  if (versions.length === 0) { list.innerHTML = '<p style="color:#555;padding:20px;text-align:center;">No versions yet.</p>'; return; }
   for (var i = versions.length - 1; i >= 0; i--) {
     var v = versions[i];
     var item = document.createElement('div');
-    item.className = 'version-item' + (previewVersionId === v.id ? ' active' : '');
-
+    item.className = 'version-item';
     var time = new Date(v.timestamp);
-    var timeStr = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
-                  time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-
-    var changeCount = 0;
-    for (var j = 0; j < v.data.length; j++) {
-      var vr = v.data[j];
-      var cr = null;
-      for (var k = 0; k < reasons.length; k++) {
-        if (reasons[k].id === vr.id) { cr = reasons[k]; break; }
-      }
-      if (cr) {
-        if (cr.title !== vr.title) changeCount++;
-        if (JSON.stringify(cr.bullets) !== JSON.stringify(vr.bullets)) changeCount++;
-        if (cr.rawText !== vr.rawText) changeCount++;
-      }
-    }
-
-    var timeDiv = document.createElement('div');
-    timeDiv.className = 'v-time';
-    timeDiv.textContent = timeStr;
-    item.appendChild(timeDiv);
-
-    var labelDiv = document.createElement('div');
-    labelDiv.className = 'v-label';
-    labelDiv.textContent = v.label;
-    item.appendChild(labelDiv);
-
-    var changesDiv = document.createElement('div');
-    changesDiv.className = 'v-changes';
-    changesDiv.textContent = changeCount === 0 ? 'Matches current' : changeCount + ' cell(s) differ from current';
-    item.appendChild(changesDiv);
-
+    var timeStr = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    item.innerHTML = '<div class="v-time">' + timeStr + '</div><div class="v-label">' + escapeHtml(v.label) + '</div>';
     var actionsDiv = document.createElement('div');
     actionsDiv.className = 'v-actions';
-
-    var previewBtn = document.createElement('button');
-    previewBtn.className = 'btn btn-ghost';
-    previewBtn.textContent = 'Preview Diff';
-    (function(vid) {
-      previewBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        previewVersionId = (previewVersionId === vid) ? null : vid;
-        renderGrid();
-        renderVersionsList();
-      });
-    })(v.id);
-    actionsDiv.appendChild(previewBtn);
-
     var restoreBtn = document.createElement('button');
-    restoreBtn.className = 'btn btn-danger';
+    restoreBtn.className = 'btn btn-ghost';
     restoreBtn.textContent = 'Restore';
-    (function(vid) {
-      restoreBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (confirm('Restore this version? Current unsaved edits will be lost.')) {
-          restoreVersion(vid);
-          toggleHistory();
-        }
-      });
-    })(v.id);
+    (function(vid) { restoreBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (confirm('Restore this version?')) { restoreVersion(vid); toggleHistory(); }
+    }); })(v.id);
     actionsDiv.appendChild(restoreBtn);
-
     item.appendChild(actionsDiv);
     list.appendChild(item);
   }
@@ -801,157 +607,79 @@ function renderVersionsList() {
 
 // ========== SAVE MODAL ==========
 function openSaveModal() {
-  var overlay = document.getElementById('save-modal-overlay');
-  overlay.classList.add('show');
+  document.getElementById('save-modal-overlay').classList.add('show');
   var input = document.getElementById('version-label');
-  input.value = '';
-  setTimeout(function() { input.focus(); }, 100);
+  var now = new Date();
+  input.value = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  setTimeout(function() { input.focus(); input.select(); }, 100);
 }
-
-function closeSaveModal() {
-  document.getElementById('save-modal-overlay').classList.remove('show');
-}
-
+function closeSaveModal() { document.getElementById('save-modal-overlay').classList.remove('show'); }
 function doSaveVersion() {
-  var label = document.getElementById('version-label').value.trim() || 'Untitled save';
-  saveVersion(label);
+  saveVersion(document.getElementById('version-label').value.trim() || 'Untitled save');
   closeSaveModal();
-  renderGrid();
 }
 
 // ========== EXPORT ==========
 function exportMarkdown() {
   var md = '# Why I Run\n\n';
   var currentCat = null;
-
   for (var i = 0; i < reasons.length; i++) {
     var r = reasons[i];
-    if (r.category !== currentCat) {
-      currentCat = r.category;
-      md += '---\n\n## ' + getCatName(r.category) + '\n\n';
-    }
+    if (r.category !== currentCat) { currentCat = r.category; md += '---\n\n## ' + getCatName(r.category) + '\n\n'; }
     md += '### ' + r.id + '. ' + r.title + '\n\n';
-    for (var b = 0; b < r.bullets.length; b++) {
-      md += '- ' + r.bullets[b] + '\n';
-    }
+    for (var b = 0; b < r.bullets.length; b++) { md += '- ' + r.bullets[b] + '\n'; }
     md += '\n';
+    if (r.essayText) { md += r.essayText + '\n\n'; }
     md += '> ' + r.rawText.split('\n\n').join('\n>\n> ') + '\n\n';
   }
-
   var blob = new Blob([md], { type: 'text/markdown' });
   var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'why_I_run_export.md';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  var a = document.createElement('a'); a.href = url; a.download = 'why_I_run_export.md';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('Exported markdown file', 'success');
+  showToast('Exported markdown', 'success');
 }
 
 // ========== EVENT LISTENERS ==========
-document.getElementById('btn-save').addEventListener('click', function() {
-  openSaveModal();
-});
+document.getElementById('btn-save').addEventListener('click', openSaveModal);
+document.getElementById('btn-history').addEventListener('click', toggleHistory);
+document.getElementById('btn-export').addEventListener('click', exportMarkdown);
+document.getElementById('history-overlay').addEventListener('click', toggleHistory);
+document.getElementById('close-history').addEventListener('click', toggleHistory);
+document.getElementById('modal-cancel').addEventListener('click', closeSaveModal);
+document.getElementById('modal-save').addEventListener('click', doSaveVersion);
+document.getElementById('save-modal-overlay').addEventListener('click', function(e) { if (e.target === this) closeSaveModal(); });
+document.getElementById('save-modal').addEventListener('click', function(e) { e.stopPropagation(); });
+document.getElementById('version-label').addEventListener('keydown', function(e) { if (e.key === 'Enter') doSaveVersion(); if (e.key === 'Escape') closeSaveModal(); });
+document.getElementById('search-input').addEventListener('input', function() { renderSidebar(); });
+document.addEventListener('keydown', function(e) { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openSaveModal(); } });
+window.addEventListener('beforeunload', function(e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
-document.getElementById('btn-history').addEventListener('click', function() {
-  toggleHistory();
-});
-
-document.getElementById('btn-export').addEventListener('click', function() {
-  exportMarkdown();
-});
-
-document.getElementById('history-overlay').addEventListener('click', function() {
-  toggleHistory();
-});
-
-document.getElementById('close-history').addEventListener('click', function() {
-  toggleHistory();
-});
-
-document.getElementById('modal-cancel').addEventListener('click', function() {
-  closeSaveModal();
-});
-
-document.getElementById('modal-save').addEventListener('click', function() {
-  doSaveVersion();
-});
-
-document.getElementById('save-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeSaveModal();
-});
-
-document.getElementById('save-modal').addEventListener('click', function(e) {
-  e.stopPropagation();
-});
-
-document.getElementById('version-label').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doSaveVersion();
-  if (e.key === 'Escape') closeSaveModal();
-});
-
-document.getElementById('search-input').addEventListener('input', function() {
-  renderGrid();
-});
-
-document.addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-    e.preventDefault();
-    openSaveModal();
-  }
-});
-
-// Warn before leaving with unsaved changes
-window.addEventListener('beforeunload', function(e) {
-  if (dirty) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
-});
-
-// ========== THEME TOGGLE ==========
-function getTheme() {
-  return storeGet('whyirun_theme') || 'dark';
-}
-
+// ========== THEME ==========
+function getTheme() { return storeGet('whyirun_theme') || 'dark'; }
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   storeSet('whyirun_theme', theme);
   var btn = document.getElementById('theme-toggle');
   if (btn) btn.innerHTML = theme === 'dark' ? '&#9789;' : '&#9788;';
 }
-
-function toggleTheme() {
-  setTheme(getTheme() === 'dark' ? 'light' : 'dark');
-}
-
+function toggleTheme() { setTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
 document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
 
 // ========== INIT ==========
 function init() {
-  console.log('[Editor] Initializing...');
   initStorage();
   setTheme(getTheme());
-
-  // Detect server, then load data
   detectServer().then(function(hasServer) {
     loadState(function() {
-      renderGrid();
-      var msg = 'Editor loaded \u2014 ' + reasons.length + ' reasons';
-      if (hasServer) {
-        msg += ' (git auto-push enabled)';
-        updateGitStatus();
-        // Poll git status every 15 seconds
-        setInterval(updateGitStatus, 15000);
-      }
+      renderSidebar();
+      if (reasons.length > 0) selectReason(reasons[0].id);
+      var msg = reasons.length + ' reasons loaded';
+      if (hasServer) { msg += ' — git enabled'; updateGitStatus(); setInterval(updateGitStatus, 15000); }
       showToast(msg, 'info');
-      console.log('[Editor] Ready!');
     });
   });
 }
-
 init();
 </script>
 </body>
