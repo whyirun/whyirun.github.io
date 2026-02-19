@@ -140,12 +140,12 @@ function selectReason(id) {
   selectedId = id;
   renderSidebar();
   renderDetail();
-  // On mobile, scroll active sidebar item into view and scroll to top of detail
   var active = document.querySelector('.sidebar-item.active');
   if (active) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-  if (window.innerWidth <= 700) {
-    document.getElementById('detail-inner').scrollIntoView({ behavior: 'smooth' });
-  }
+  // Reset detail scroll to top
+  var detail = document.getElementById('detail');
+  if (detail) detail.scrollTop = 0;
+  if (window.innerWidth <= 700) window.scrollTo(0, 0);
 }
 
 function renderDetail() {
