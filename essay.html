@@ -54,6 +54,29 @@ body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: 
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* Mobile: sidebar becomes top nav, detail goes full width */
+@media (max-width: 700px) {
+  body { height: auto; overflow: auto; }
+  #main { flex-direction: column; overflow: visible; }
+  #sidebar {
+    width: 100%; flex-shrink: 0; flex-direction: row; overflow-x: auto; overflow-y: hidden;
+    border-right: none; border-bottom: 1px solid var(--border);
+    padding: 0; white-space: nowrap; -webkit-overflow-scrolling: touch;
+  }
+  .sidebar-cat { display: none; }
+  .sidebar-item {
+    display: inline-block; padding: 12px 14px; font-size: 14px;
+    border-left: none; border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  .sidebar-item.active { border-left-color: transparent; border-bottom-color: #fff; background: transparent; }
+  #detail { overflow: visible; }
+  #detail-inner { padding: 24px 20px 60px; }
+  .detail-title { font-size: 20px; }
+  .detail-section .content { font-size: 15px; }
+  .detail-section.essay-section .content { font-size: 16px; }
+  .detail-section.raw-section .content { font-size: 13px; }
+}
 </style>
 </head>
 <body>
@@ -117,6 +140,12 @@ function selectReason(id) {
   selectedId = id;
   renderSidebar();
   renderDetail();
+  // On mobile, scroll active sidebar item into view and scroll to top of detail
+  var active = document.querySelector('.sidebar-item.active');
+  if (active) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  if (window.innerWidth <= 700) {
+    document.getElementById('detail-inner').scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 function renderDetail() {
