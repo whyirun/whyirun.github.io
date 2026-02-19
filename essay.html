@@ -182,8 +182,10 @@ function renderDetail() {
 fetch('data.json').then(function(r) { return r.json(); }).then(function(data) {
   if (Array.isArray(data) && data.length > 0) {
     reasons = data;
+    selectedId = reasons[0].id;
     renderSidebar();
-    selectReason(reasons[0].id);
+    renderDetail();
+    window.scrollTo(0, 0);
   }
 }).catch(function(e) { console.error('Failed to load data:', e); });
 </script>
