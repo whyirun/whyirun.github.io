@@ -1,18 +1,19 @@
 #!/bin/bash
-# Why I Run — Editor launcher
-# Usage: run (after adding alias to your shell profile)
+# On Running — Editor launcher
+# Usage: running (after adding alias to your shell profile)
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
 
 echo ""
-echo "  ✦ Why I Run — Editor"
+echo "  ✦ On Running — Editor"
 echo ""
 
-# Commit any pending changes
+# Commit any pending changes (data.json, essays.json, and anything else)
 CHANGES=$(git status --porcelain 2>/dev/null)
 if [ -n "$CHANGES" ]; then
-  git add .
+  git add data.json essays.json 2>/dev/null
+  git add . 2>/dev/null
   git commit -m "Auto-save: $(date '+%Y-%m-%d %H:%M')" --quiet 2>/dev/null
   echo "  ✓ Committed pending changes"
 fi
@@ -37,6 +38,7 @@ fi
 # Start server and open browser
 echo ""
 echo "  → Starting editor at http://localhost:3456"
+echo "  → Real-time push enabled (commits push to GitHub automatically)"
 echo "  → Press Ctrl+C to stop"
 echo ""
 

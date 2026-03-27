@@ -16,15 +16,16 @@ data.json (persisted reasons array)
 GitHub remote (optional)
 ```
 
-**Dual storage**: server writes `data.json` + git commits; browser keeps `localStorage` as fallback. Works offline (localStorage only) or with server (file + git).
+**Dual storage**: server writes `data.json` / `essays.json` + git commits; browser keeps `localStorage` as fallback. Works offline (localStorage only) or with server (file + git).
 
 ## Project Files
 
 | File | Purpose |
 |------|---------|
-| `why_I_run_editor.html` | Single-file client app: grid UI, editing, version snapshots, search, export. ~1000 lines. |
-| `server.js` | Express backend: serves editor, REST API for load/save, git commit on every save. |
+| `why_I_run_editor.html` | Single-file client app: grid UI, essays tab, editing, version snapshots, search, export. |
+| `server.js` | Express backend: serves editor, REST API for load/save (reasons + essays), git commit on every save. |
 | `data.json` | Persistent storage — array of reason objects. Created on first save. Git-tracked. |
+| `essays.json` | Persistent storage — array of essay objects (race reports, notable runs). Git-tracked. |
 | `run.sh` | Launcher: commits pending changes → pushes to GitHub if online → starts server → opens browser. |
 | `setup.sh` | One-time setup: installs deps, inits git, prints GitHub setup instructions. |
 | `why_I_run_annotated.md` | Readable markdown export of all 25 reasons with raw transcript. |
@@ -46,6 +47,17 @@ Each reason is an object in `data.json`:
 
 **25 reasons** across **7 categories**: `core` (blue), `embodied` (green), `identity` (amber), `meaning` (purple), `personal` (red), `emerging` (cyan), `simulation` (orange).
 
+Each essay is an object in `essays.json`:
+
+```json
+{
+  "id": "1711234567890",
+  "date": "2026-03-15",
+  "title": "Mt Tam East Peak — Race Report",
+  "content": "Last Saturday I ran from home to Mt Tam East Peak..."
+}
+```
+
 ## API Endpoints (server.js)
 
 | Method | Path | Body | What it does |
@@ -54,14 +66,21 @@ Each reason is an object in `data.json`:
 | GET | `/api/data` | — | Returns `{ ok, data }` from data.json |
 | POST | `/api/save` | `{ reasons, message }` | Writes data.json, `git add` + `git commit` |
 | POST | `/api/version` | `{ reasons, label }` | Same as save but commit msg = `"Version: {label}"` |
+| GET | `/api/essays` | — | Returns `{ ok, data }` from essays.json |
+| POST | `/api/essays/save` | `{ essays, message }` | Writes essays.json, `git add` + `git commit` |
 | GET | `/api/status` | — | Returns `{ ok, hasRemote, commits[] }` |
 
 ## Editor Client (why_I_run_editor.html)
 
 **Layout**: 3-column grid (Title | Key Points | Raw Transcript), 2 rows visible, scrollable. Category headers as colored dividers.
 
+**Tabs**: Reasons (default) and Essays, switched via toolbar tabs. Each tab has its own sidebar content and detail view.
+
 **Key JS globals**:
 - `reasons` — the working data array
+- `essays` — array of essay objects
+- `activeTab` — `'reasons'` or `'essays'`
+- `selectedEssayId` — currently selected essay
 - `versions` — local version snapshots (localStorage only, key: `whyirun_versions`)
 - `useServer` — boolean, auto-detected on init via `fetch('/api/status')`
 - `dirty` — tracks unsaved changes
@@ -105,6 +124,7 @@ alias run='bash /path/to/folder/run.sh'
 
 **Done**:
 - Grid editor with click-to-edit, search, category colors
+- Essays tab for race reports and notable runs (date, title, content)
 - localStorage + server dual persistence
 - Version snapshots with restore and diff preview
 - Express server with git auto-commit
@@ -124,8 +144,9 @@ alias run='bash /path/to/folder/run.sh'
 |----------|-------|----------|
 | Server port | `3456` | server.js line 7 |
 | Data file | `./data.json` | server.js line 8 |
+| Essays file | `./essays.json` | server.js line 9 |
 | Git timeout | 15s | server.js line 16 |
-| localStorage keys | `whyirun_data`, `whyirun_versions` | editor HTML |
+| localStorage keys | `whyirun_data`, `whyirun_versions`, `whyirun_essays` | editor HTML |
 | Status poll interval | 15s | editor HTML init() |
 | Category colors | hex values in `CAT_COLORS` object | editor HTML |
 

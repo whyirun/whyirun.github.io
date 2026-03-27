@@ -1,11 +1,12 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, exec } = require('child_process');
 
 const app = express();
 const PORT = 3456;
 const DATA_FILE = path.join(__dirname, 'data.json');
+const ESSAYS_FILE = path.join(__dirname, 'essays.json');
 const EDITOR_FILE = path.join(__dirname, 'why_I_run_editor.html');
 
 app.use(express.json({ limit: '5mb' }));
@@ -20,18 +21,40 @@ function gitExec(cmd) {
   }
 }
 
-function commitData(message) {
-  gitExec('git add data.json');
+function commitFile(filename, message) {
+  gitExec(`git add ${filename}`);
   const status = gitExec('git diff --cached --stat');
   if (!status || status.trim() === '') return;
   const safe = message.replace(/"/g, '\\"');
   const result = gitExec(`git commit -m "${safe}"`);
-  if (result) console.log(`[git] Committed: ${message}`);
+  if (result) {
+    console.log(`[git] Committed: ${message}`);
+    gitPushAsync();
+  }
+}
+
+function commitData(message) {
+  commitFile('data.json', message);
 }
 
 function hasRemote() {
   const r = gitExec('git remote -v');
   return r && r.includes('origin');
+}
+
+let pushPending = false;
+function gitPushAsync() {
+  if (!hasRemote()) return;
+  if (pushPending) return;
+  pushPending = true;
+  exec('git push origin main', { cwd: __dirname, timeout: 30000 }, (err) => {
+    pushPending = false;
+    if (err) {
+      console.log(`[git] Push failed (will retry on next save)`);
+    } else {
+      console.log(`[git] Pushed to GitHub`);
+    }
+  });
 }
 
 // ========== API ==========
@@ -95,6 +118,32 @@ app.get('/api/pace', (req, res) => {
     });
   } catch (e) {
     res.json({ ok: false, error: e.message });
+  }
+});
+
+app.get('/api/essays', (req, res) => {
+  try {
+    if (fs.existsSync(ESSAYS_FILE)) {
+      res.json({ ok: true, data: JSON.parse(fs.readFileSync(ESSAYS_FILE, 'utf-8')) });
+    } else {
+      res.json({ ok: true, data: [] });
+    }
+  } catch (e) {
+    res.json({ ok: true, data: [] });
+  }
+});
+
+app.post('/api/essays/save', (req, res) => {
+  try {
+    const { essays, message } = req.body;
+    if (!essays || !Array.isArray(essays)) {
+      return res.status(400).json({ ok: false, error: 'Invalid data' });
+    }
+    fs.writeFileSync(ESSAYS_FILE, JSON.stringify(essays, null, 2), 'utf-8');
+    commitFile('essays.json', message || `Essay update: ${new Date().toLocaleString()}`);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 
