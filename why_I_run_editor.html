@@ -183,7 +183,7 @@ body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: 
 <div id="toolbar">
   <h1>On Running</h1>
   <div class="toolbar-tabs">
-    <button class="toolbar-tab active" id="tab-reasons" onclick="switchTab('reasons')">Reasons</button>
+    <button class="toolbar-tab active" id="tab-reasons" onclick="switchTab('reasons')">Thoughts</button>
     <button class="toolbar-tab" id="tab-essays" onclick="switchTab('essays')">Essays</button>
   </div>
   <div class="actions">
@@ -201,7 +201,7 @@ body { font-family: 'CMU Serif', Georgia, 'Times New Roman', serif; background: 
     <div id="sidebar-list"></div>
   </div>
   <div id="detail">
-    <div id="detail-empty">Select a reason from the sidebar</div>
+    <div id="detail-empty">Select a thought from the sidebar</div>
     <div id="detail-inner" style="display:none;"></div>
   </div>
 </div>
@@ -1004,7 +1004,7 @@ function init() {
       loadEssays(function() {
         renderSidebar();
         if (reasons.length > 0) selectReason(reasons[0].id);
-        var msg = reasons.length + ' reasons loaded';
+        var msg = reasons.length + ' thoughts loaded';
         if (essays.length > 0) msg += ', ' + essays.length + ' essay' + (essays.length > 1 ? 's' : '');
         if (hasServer) { msg += ' — git enabled'; updateGitStatus(); setInterval(updateGitStatus, 15000); }
         showToast(msg, 'info');
