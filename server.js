@@ -39,7 +39,7 @@ function commitData(message) {
 
 function hasRemote() {
   const r = gitExec('git remote -v');
-  return r && r.includes('origin');
+  return r && r.includes('pages');
 }
 
 let pushPending = false;
@@ -47,7 +47,7 @@ function gitPushAsync() {
   if (!hasRemote()) return;
   if (pushPending) return;
   pushPending = true;
-  exec('git push origin main', { cwd: __dirname, timeout: 30000 }, (err) => {
+  exec('git push pages main', { cwd: __dirname, timeout: 30000 }, (err) => {
     pushPending = false;
     if (err) {
       console.log(`[git] Push failed (will retry on next save)`);
