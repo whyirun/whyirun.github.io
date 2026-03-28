@@ -1035,10 +1035,7 @@ function init() {
       loadEssays(function() {
         renderSidebar();
         if (reasons.length > 0) selectReason(reasons[0].id);
-        var msg = reasons.length + ' thoughts loaded';
-        if (essays.length > 0) msg += ', ' + essays.length + ' essay' + (essays.length > 1 ? 's' : '');
-        if (hasServer) { msg += ' — git enabled'; updateGitStatus(); setInterval(updateGitStatus, 15000); }
-        showToast(msg, 'info');
+        if (hasServer) { updateGitStatus(); setInterval(updateGitStatus, 15000); }
       });
     });
   });
