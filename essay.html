@@ -379,7 +379,12 @@ function loadState(callback) {
     if (callback) callback();
   }
   if (useServer) { serverLoadData().then(function(d) { finishLoad(d); }); }
-  else { finishLoad(null); }
+  else {
+    fetch('data.json').then(function(r) { return r.json(); }).then(function(d) {
+      if (Array.isArray(d) && d.length > 0) finishLoad(d);
+      else finishLoad(null);
+    }).catch(function() { finishLoad(null); });
+  }
 }
 
 function autoSave() {
@@ -398,7 +403,12 @@ function loadEssays(callback) {
     if (callback) callback();
   }
   if (useServer) { serverLoadEssays().then(function(d) { finishLoad(d); }); }
-  else { finishLoad(null); }
+  else {
+    fetch('essays.json').then(function(r) { return r.json(); }).then(function(d) {
+      if (Array.isArray(d)) finishLoad(d);
+      else finishLoad(null);
+    }).catch(function() { finishLoad(null); });
+  }
 }
 
 function autoSaveEssays() {
