@@ -7,7 +7,7 @@ const app = express();
 const PORT = 3456;
 const DATA_FILE = path.join(__dirname, 'data.json');
 const ESSAYS_FILE = path.join(__dirname, 'essays.json');
-const EDITOR_FILE = path.join(__dirname, 'why_I_run_editor.html');
+const EDITOR_FILE = path.join(__dirname, 'essay.html');
 
 app.use(express.json({ limit: '5mb' }));
 
