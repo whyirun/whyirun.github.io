@@ -21,9 +21,9 @@ fi
 # Try to push if there's internet
 if curl -s --max-time 3 https://github.com > /dev/null 2>&1; then
   echo "  ✓ Internet connected"
-  if git remote -v 2>/dev/null | grep -q pages; then
+  if git remote -v 2>/dev/null | grep -q origin; then
     echo "  → Pushing to GitHub..."
-    if git push pages main --quiet 2>/dev/null; then
+    if git push origin main --quiet 2>/dev/null; then
       echo "  ✓ Pushed to GitHub"
     else
       echo "  ⚠ Push failed (will retry next time)"

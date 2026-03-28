@@ -291,6 +291,8 @@ var selectedEssayId = null;
 var activeTab = 'reasons';
 var ESSAYS_STORAGE_KEY = 'whyirun_essays';
 
+var readOnly = (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1');
+
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 function getReasonById(id) {
   for (var i = 0; i < reasons.length; i++) { if (reasons[i].id === id) return reasons[i]; }
@@ -554,6 +556,7 @@ function renderDetail() {
 
 // ========== INLINE EDITING ==========
 function makeEditable(el, reasonId, field) {
+  if (readOnly) return;
   el.addEventListener('click', function() {
     if (el.contentEditable === 'true') return;
     startEdit(el, reasonId, field);
@@ -666,11 +669,13 @@ function renderEssaysSidebar() {
   list.innerHTML = '';
   var query = document.getElementById('search-input').value.toLowerCase().trim();
 
-  var newBtn = document.createElement('button');
-  newBtn.className = 'sidebar-new-btn';
-  newBtn.textContent = '+ New Essay';
-  newBtn.addEventListener('click', createNewEssay);
-  list.appendChild(newBtn);
+  if (!readOnly) {
+    var newBtn = document.createElement('button');
+    newBtn.className = 'sidebar-new-btn';
+    newBtn.textContent = '+ New Essay';
+    newBtn.addEventListener('click', createNewEssay);
+    list.appendChild(newBtn);
+  }
 
   var sorted = essays.slice().sort(function(a, b) {
     if (a.date > b.date) return -1;
@@ -754,16 +759,23 @@ function renderEssayDetail() {
   // Date row
   var dateRow = document.createElement('div');
   dateRow.className = 'essay-date-row';
-  var dateInput = document.createElement('input');
-  dateInput.type = 'date';
-  dateInput.value = essay.date || '';
-  dateInput.addEventListener('change', function() {
-    essay.date = dateInput.value;
-    dirty = true;
-    autoSaveEssays();
-    renderEssaysSidebar();
-  });
-  dateRow.appendChild(dateInput);
+  if (readOnly) {
+    var dateLabel = document.createElement('span');
+    dateLabel.style.cssText = 'font-size:14px;color:var(--text-muted);';
+    dateLabel.textContent = essay.date ? formatEssayDate(essay.date) : '';
+    dateRow.appendChild(dateLabel);
+  } else {
+    var dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.value = essay.date || '';
+    dateInput.addEventListener('change', function() {
+      essay.date = dateInput.value;
+      dirty = true;
+      autoSaveEssays();
+      renderEssaysSidebar();
+    });
+    dateRow.appendChild(dateInput);
+  }
   inner.appendChild(dateRow);
 
   // Title
@@ -793,21 +805,24 @@ function renderEssayDetail() {
   inner.appendChild(contentSection);
   makeEssayEditable(contentEl, essay.id, 'content');
 
-  // Delete button
-  var deleteRow = document.createElement('div');
-  deleteRow.className = 'essay-delete-row';
-  var deleteBtn = document.createElement('button');
-  deleteBtn.className = 'btn btn-danger';
-  deleteBtn.textContent = 'Delete Essay';
-  (function(eid) {
-    deleteBtn.addEventListener('click', function() { deleteEssay(eid); });
-  })(essay.id);
-  deleteRow.appendChild(deleteBtn);
-  inner.appendChild(deleteRow);
+  // Delete button (editor only)
+  if (!readOnly) {
+    var deleteRow = document.createElement('div');
+    deleteRow.className = 'essay-delete-row';
+    var deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-danger';
+    deleteBtn.textContent = 'Delete Essay';
+    (function(eid) {
+      deleteBtn.addEventListener('click', function() { deleteEssay(eid); });
+    })(essay.id);
+    deleteRow.appendChild(deleteBtn);
+    inner.appendChild(deleteRow);
+  }
 }
 
 // ========== ESSAY INLINE EDITING ==========
 function makeEssayEditable(el, essayId, field) {
+  if (readOnly) return;
   el.addEventListener('click', function() {
     if (el.contentEditable === 'true') return;
     startEssayEdit(el, essayId, field);
@@ -999,6 +1014,12 @@ document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
 function init() {
   initStorage();
   setTheme(getTheme());
+  if (readOnly) {
+    document.getElementById('btn-save').style.display = 'none';
+    document.getElementById('btn-history').style.display = 'none';
+    document.getElementById('btn-export').style.display = 'none';
+    document.getElementById('git-status').style.display = 'none';
+  }
   detectServer().then(function(hasServer) {
     loadState(function() {
       loadEssays(function() {
